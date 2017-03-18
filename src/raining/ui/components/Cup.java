@@ -4,6 +4,12 @@ import java.awt.Rectangle;
 
 import javafx.scene.shape.Ellipse;
 
+/**
+ * This class is the cup object which the users play's the game with.
+ * The cup is created with 3 ellipses parts.
+ * @author asen
+ *
+ */
 public class Cup {
 
 	private static Ellipse[] parts;
@@ -21,7 +27,9 @@ public class Cup {
 		initParts();
 
 	}
-
+/**
+ * init all the cordinaties of the 2 arrays - and create the 3 parts of ellipses
+ */
 	private void initParts() {
 
 		partsX = new int[3];
@@ -45,12 +53,19 @@ public class Cup {
 
 		
 	}
-
+/**
+ * 
+ * @return the parts of the cup
+ */
 	public Ellipse[] getParts() {
 
 		return this.parts;
 	}
 
+	/**
+	 * move left behaviour- move all the parts at the same time
+	 * 	  @author asen
+	 */
 	public void moveLeft() {
 		for (int i = 0; i < parts.length; i++) {
 			if (partsX[i] <= -5) {
@@ -64,6 +79,11 @@ public class Cup {
 
 	}
 
+	
+	/**
+	 * move right behaviour- move all the parts at the same time
+	 * 	  @author asen
+	 */
 	public void moveRight() {
 
 		for (int i = 0; i < partsX.length; i++) {
@@ -78,7 +98,10 @@ public class Cup {
 		}
 
 	}
-
+/**
+ * This method is called many many times for each rain drop,to check if is in the cup.
+ * @param line
+ */
 	public void checkIfSingleRainIsInTheCup(RainDrop line) {
 
 		if (line.getEndX() >= partsX[0] && line.getEndX() <= partsX[2] && line.getEndY() > 525) {
@@ -88,7 +111,11 @@ public class Cup {
 		}
 
 	}
-
+/**
+ * get the HighScore at the end of the game
+ * @return
+ * 	  @author asen
+ */
 	public final long getHighScore() {
 		return highScore;
 	}

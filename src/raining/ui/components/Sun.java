@@ -3,7 +3,11 @@ package raining.ui.components;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
-
+/**
+ * This is the sun UI components - which can be only yellow or black , depends of the state of the game
+ * @author asen
+ *
+ */
 public class Sun extends Ellipse {
 
 	private Color colorOfSun;

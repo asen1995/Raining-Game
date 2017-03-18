@@ -21,8 +21,24 @@ import raining.ui.components.Cup;
 import raining.ui.components.RainDrop;
 import raining.ui.components.Sun;
 
-
-
+/**
+ * The main class which is called by JVM to start executing. This class
+ * initialise the UI components and the behaviour of the game. The game plays
+ * with 3 Threads : 1 thread play the raining animation 2 thread play the
+ * counter for which the player must catch all the rainingdrops 3 thread - the
+ * main thread - which initialize all the components and handle all key inputs
+ * for the game.
+ * 
+ * The Rules of the game is to catch all the raindrops for some Counter
+ * seconds(per level) -if not (GAME OVER) if yes - play final animation - turn
+ * the sun to YELLOW , and the clouds go away from the screen. When this
+ * animation execute - the player will be asked if he wans to play the next
+ * level or not. If he plays next level - the counter will be with less seconds
+ * and more rain drops.
+ * 
+ * @author asen
+ *
+ */
 public class Main extends Application {
 
 	public static final short WIDTH = 600;
@@ -36,7 +52,6 @@ public class Main extends Application {
 	private Sun sun;
 	private Cup cup;
 
-	
 	private Runnable timer;
 	private Thread timerThread;
 	Runnable gameLoop;
@@ -51,6 +66,10 @@ public class Main extends Application {
 
 	private int level = 1;
 
+	/**
+	 * method start initialize all the components and puts them in Scene and
+	 * show to the user
+	 */
 	@Override
 	public void start(Stage stage) throws Exception {
 
@@ -58,7 +77,7 @@ public class Main extends Application {
 		randomNumbers = new Random();
 
 		pane = new Pane();
-		
+
 		sun = new Sun();
 		pane.getChildren().add(sun);
 
@@ -74,7 +93,6 @@ public class Main extends Application {
 			pane.getChildren().add(raindrop);
 		}
 
-		
 		pane.setTranslateX(0);
 		pane.setTranslateY(0);
 		pane.setMinWidth(WIDTH);
@@ -91,7 +109,6 @@ public class Main extends Application {
 		scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		initButtons();
 
-		
 		stage.setResizable(false);
 
 		stage.setScene(scene);
@@ -100,6 +117,11 @@ public class Main extends Application {
 
 	}
 
+	/**
+	 * init only buttons and all of them click behaviours
+	 * 
+	 * @author asen
+	 */
 	private void initButtons() {
 		startGame = new Button("Start Game");
 
@@ -144,6 +166,11 @@ public class Main extends Application {
 
 	}
 
+	/**
+	 * create text object with yellow color
+	 * 
+	 * @return
+	 */
 	private Text createTextCounter() {
 		counterText = new Text("");
 		counterText.setTranslateX(300);
@@ -153,6 +180,24 @@ public class Main extends Application {
 		return counterText;
 	}
 
+	/**
+	 * here i init one thread for the raining animation , and another for the
+	 * counter
+	 * 
+	 * 
+	 * gameLoop -sets cloud position, then turn the sun to BLACK color,and play
+	 * the raining animation - for every rain call
+	 * cup.checkIfSingleRainIsInTheCup(raindrops.get(i)) - which check if this
+	 * raindrop is in the cup - if it is - then destroy it. this thread handel
+	 * user define exception NoMoreRainDropsException - which is thrown when we
+	 * have no more rain drops to catch.
+	 * 
+	 * 
+	 * the second thread is timer thread - which count the seconds remaining -
+	 * if is zero - GAME OVER.
+	 * 
+	 * @author asen
+	 */
 	private void initThreadsForTheGame() {
 
 		System.out.println(raindrops.size());
@@ -176,6 +221,7 @@ public class Main extends Application {
 								}
 
 								raindrops.get(i).move();
+
 								cup.checkIfSingleRainIsInTheCup(raindrops.get(i));
 							} catch (ArrayIndexOutOfBoundsException e) {
 								System.out.println("Array index ....");
@@ -247,6 +293,15 @@ public class Main extends Application {
 
 	}
 
+	/**
+	 * method to set visibility to all the buttons we want .
+	 * 
+	 * @param visibility
+	 *            - true or false
+	 * @param buttons
+	 *            - some buttons specified
+	 * @author asen
+	 */
 	private void setVisibility(boolean visibility, Button... buttons) {
 		for (int i = 0; i < buttons.length; i++) {
 			buttons[i].setVisible(visibility);
@@ -255,6 +310,13 @@ public class Main extends Application {
 
 	private static final int NUMBER_OF_MORE_RAINS_BY_LEVEL = 200;
 
+	/**
+	 * This method change the level of the game,add more raindrops per level and
+	 * start two new thread.
+	 * 
+	 * @param level
+	 * @author asen
+	 */
 	private void changeLevel(int level) {
 
 		cup.setHighScore(cup.getHighScore() + raindrops.size());
@@ -288,6 +350,15 @@ public class Main extends Application {
 
 	}
 
+	/**
+	 * this method analize the level number , and return the speed for the
+	 * specific level.
+	 * 
+	 * @param level
+	 *            - which level is next
+	 * @return number of seconds for the counter on this level
+	 * @author asen
+	 */
 	private int analizeLevelSpeedByLevel(int level) {
 		if (level > 0 && level < 4) {
 			return 25;
@@ -306,6 +377,11 @@ public class Main extends Application {
 		return 8;
 	}
 
+	/**
+	 * this method reset single rain - if it was destroyed
+	 * 
+	 * @param rainDrop
+	 */
 	private void resetSingleRain(RainDrop rainDrop) {
 		if (rainDrop != null) {
 			rainDrop.reset((double) randomNumbers.nextInt(600), (double) randomNumbers.nextInt(600));
@@ -313,6 +389,14 @@ public class Main extends Application {
 
 	}
 
+	/**
+	 * this method is called every 1 second - if timer is at more then 3 - the
+	 * color is set to YELLOW if is less then 3 ( 1-3 )- is it RED.
+	 * 
+	 * @param count
+	 *            - timers count.
+	 * @author asen
+	 */
 	private void colorTextByCount(int count) {
 		if (count > 3)
 			counterText.setFill(Color.YELLOW);
@@ -322,6 +406,12 @@ public class Main extends Application {
 
 	private boolean moveballe = true;
 
+	/**
+	 * handels the user input and move the cup left or Right
+	 * 
+	 * @param keyInput
+	 * @author asen
+	 */
 	private void keyBoardInput(javafx.scene.input.KeyEvent keyInput) {
 
 		if (moveballe) {
@@ -334,13 +424,28 @@ public class Main extends Application {
 			}
 			case RIGHT: {
 				cup.moveRight();
+				break;
+			}
+
+			case A:{
+				cup.moveLeft();
+				break;
+			}
+
+			case D: {
+				cup.moveRight();
+				break;
 			}
 			default:
 				break;
 			}
 		}
 	}
-
+/**
+ * this methods create cup ass array of Elipses
+ * @return array of ellipses
+ * 	  @author asen
+ */
 	private Ellipse[] createCup() {
 		cup = new Cup();
 
