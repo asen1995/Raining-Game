@@ -18,6 +18,8 @@ public class RainDrop extends Line {
 	public static short numberOfLines = 0;
 
 	private boolean alive;
+	
+	private static boolean raining;
 
 	/**
 	 * 
@@ -75,6 +77,15 @@ public class RainDrop extends Line {
 
 	}
 
+	
+	public static final boolean isRaining() {
+		return raining;
+	}
+
+	public static final void setRaining(boolean raining) {
+		RainDrop.raining = raining;
+	}
+
 	public final boolean isAlive() {
 		return alive;
 	}
@@ -101,7 +112,7 @@ public class RainDrop extends Line {
 	 *             - if we have zero rainDrops alive
 	 */
 	public void move() throws NoMoreRainDropsException {
-
+if(raining){
 		if (numberOfLines == 0 || numberOfLines < 0) {
 			throw new NoMoreRainDropsException();
 		}
@@ -114,6 +125,7 @@ public class RainDrop extends Line {
 		setStartY(currentY);
 		currentY += 20;
 		setEndY(currentY);
+	}
 	}
 
 }

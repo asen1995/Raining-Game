@@ -2,8 +2,10 @@ package raining.ui.components;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
+
 /**
- * create Cloud UI component from 3 ellipses 
+ * create Cloud UI component from 3 ellipses
+ * 
  * @author asen
  *
  */
@@ -13,7 +15,8 @@ public class Cloud extends Ellipse {
 
 	/**
 	 * iit the 3 ellipses for the cloud and set the starting positions
-	 *  @author asen
+	 * 
+	 * @author asen
 	 */
 	private static void initClouds() {
 
@@ -37,18 +40,21 @@ public class Cloud extends Ellipse {
 			clouds[i].setRadiusY(60);
 		}
 	}
-/**
- * if we start new level - the cloud must be back at the starting position.
- *  @author asen
- */
+
+	/**
+	 * if we start new level - the cloud must be back at the starting position.
+	 * 
+	 * @author asen
+	 */
 	public static void resetCloudPosition() {
 		initClouds();
 	}
 
 	/**
 	 * return the cloud object as array of clouds
+	 * 
 	 * @return
-	 *  @author asen
+	 * @author asen
 	 */
 	public static Cloud[] getClouds() {
 		if (clouds == null) {
@@ -56,11 +62,14 @@ public class Cloud extends Ellipse {
 		}
 		return clouds;
 	}
-/**
- * this method create thread which play the "go away cloud " animation , and waits until is over.
- * @return
- *  @author asen
- */
+
+	/**
+	 * this method create thread which play the "go away cloud " animation , and
+	 * waits until is over.
+	 * 
+	 * @return
+	 * @author asen
+	 */
 	public static boolean destroyClouds() {
 
 		Thread cloudsGoAwayThread = new Thread(new Runnable() {
@@ -82,13 +91,18 @@ public class Cloud extends Ellipse {
 				}
 			}
 		});
-
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		cloudsGoAwayThread.start();
 
 		while (cloudsGoAwayThread.isAlive()) {
 
 		}
-		
+
 		return true;
 	}
 

@@ -15,7 +15,9 @@ import javafx.scene.shape.Ellipse;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javazoom.jl.player.Player;
 import raining.exceptions.NoMoreRainDropsException;
+import raining.souds.SoundManager;
 import raining.ui.components.Cloud;
 import raining.ui.components.Cup;
 import raining.ui.components.RainDrop;
@@ -34,7 +36,9 @@ import raining.ui.components.Sun;
  * the sun to YELLOW , and the clouds go away from the screen. When this
  * animation execute - the player will be asked if he wans to play the next
  * level or not. If he plays next level - the counter will be with less seconds
- * and more rain drops.
+ * and more rain drops. And also contains Sound Manager - to play sounds in the
+ * game process.- if the user exits with the X button - the Sound manager will
+ * make sure to close the input stream.
  * 
  * @author asen
  *
@@ -66,6 +70,8 @@ public class Main extends Application {
 
 	private int level = 1;
 
+	private SoundManager soundPlayer;
+
 	/**
 	 * method start initialize all the components and puts them in Scene and
 	 * show to the user
@@ -85,6 +91,8 @@ public class Main extends Application {
 		pane.getChildren().addAll(clouds);
 
 		pane.getChildren().add(createTextCounter());
+
+		RainDrop.setRaining(true);
 
 		for (int i = 0; i < NUMBER_OF_RAIN_DROPS; i++) {
 			RainDrop raindrop = new RainDrop((double) randomNumbers.nextInt(600), (double) randomNumbers.nextInt(600));
@@ -113,7 +121,23 @@ public class Main extends Application {
 
 		stage.setScene(scene);
 		stage.show();
+
+		stage.setOnCloseRequest(request -> {
+			onPressXButton();
+		});
 		initThreadsForTheGame();
+
+	}
+
+	/**
+	 * make sure the music input stream close
+	 * 
+	 * @author asen
+	 */
+	private void onPressXButton() {
+		if (soundPlayer != null) {
+			soundPlayer.stopThePlayer();
+		}
 
 	}
 
@@ -200,8 +224,6 @@ public class Main extends Application {
 	 */
 	private void initThreadsForTheGame() {
 
-		System.out.println(raindrops.size());
-
 		gameLoop = new Runnable() {
 
 			@Override
@@ -210,6 +232,11 @@ public class Main extends Application {
 				Cloud.resetCloudPosition();
 				sun.turnBlack();
 				theGameisOver = false;
+
+				if (soundPlayer == null) {
+					soundPlayer = new SoundManager();
+				}
+				soundPlayer.playRainingDropsSound();
 				try {
 					while (true) {
 
@@ -224,7 +251,6 @@ public class Main extends Application {
 
 								cup.checkIfSingleRainIsInTheCup(raindrops.get(i));
 							} catch (ArrayIndexOutOfBoundsException e) {
-								System.out.println("Array index ....");
 								continue;
 							}
 
@@ -239,6 +265,7 @@ public class Main extends Application {
 				}
 
 				catch (NoMoreRainDropsException e) {
+					soundPlayer.playCloudGoAwaySound();
 					theGameisOver = true;
 					moveballe = false;
 					counterText.setText("");
@@ -267,7 +294,6 @@ public class Main extends Application {
 				for (int count = TIMER_SECONDS; count > 0; count--) {
 
 					if (theGameisOver) {
-						System.out.println("The Player catch all the rain drops,so BREAK !");
 						counterText.setText("");
 						break;
 					}
@@ -283,6 +309,8 @@ public class Main extends Application {
 				}
 
 				if (!sun.isTheSunYellow() && !theGameisOver) {
+					RainDrop.setRaining(false);
+					soundPlayer.playGameOverSound();
 					JOptionPane.showMessageDialog(null,
 							"GAME OVER \n High score  = " + cup.getHighScore() + "\n at level " + level);
 					System.exit(1);
@@ -340,8 +368,6 @@ public class Main extends Application {
 				resetSingleRain(raindrops.get(i));
 			}
 		}
-
-		System.out.println("broi na kapkite sa " + RainDrop.numberOfLines);
 
 		Thread th = new Thread(gameLoop);
 		th.start();
@@ -427,7 +453,7 @@ public class Main extends Application {
 				break;
 			}
 
-			case A:{
+			case A: {
 				cup.moveLeft();
 				break;
 			}
@@ -441,11 +467,13 @@ public class Main extends Application {
 			}
 		}
 	}
-/**
- * this methods create cup ass array of Elipses
- * @return array of ellipses
- * 	  @author asen
- */
+
+	/**
+	 * this methods create cup ass array of Elipses
+	 * 
+	 * @return array of ellipses
+	 * @author asen
+	 */
 	private Ellipse[] createCup() {
 		cup = new Cup();
 
