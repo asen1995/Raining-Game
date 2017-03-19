@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
@@ -16,6 +17,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javazoom.jl.player.Player;
+import raining.animations.GameOverAnimation;
+import raining.dialog.RulesAndInformation;
 import raining.exceptions.NoMoreRainDropsException;
 import raining.souds.SoundManager;
 import raining.ui.components.Cloud;
@@ -66,11 +69,12 @@ public class Main extends Application {
 
 	private boolean theGameisOver = false;
 
-	private Button startGame, exit, nextLevel;
+	private Button startGame, exit, nextLevel, rules;
 
 	private int level = 1;
 
 	private SoundManager soundPlayer;
+	private Text gameOver;
 
 	/**
 	 * method start initialize all the components and puts them in Scene and
@@ -122,6 +126,9 @@ public class Main extends Application {
 		stage.setScene(scene);
 		stage.show();
 
+		gameOver = new Text();
+
+		pane.getChildren().addAll(gameOver);
 		stage.setOnCloseRequest(request -> {
 			onPressXButton();
 		});
@@ -156,7 +163,7 @@ public class Main extends Application {
 		startGame.setFont(new Font(30));
 		startGame.setOnAction(el -> {
 			level++;
-			setVisibility(false, startGame, exit);
+			setVisibility(false, startGame, exit, rules);
 			changeLevel(level);
 
 		});
@@ -185,8 +192,20 @@ public class Main extends Application {
 			moveballe = true;
 			nextLevel.setText("NEXT LEVEL " + level);
 		});
-		setVisibility(true, startGame, exit);
-		pane.getChildren().addAll(startGame, exit, nextLevel);
+
+		rules = new Button("Rules");
+
+		rules.setTranslateX(200);
+
+		rules.setTranslateY(400);
+		rules.setMinSize(250, 50);
+		rules.setFont(new Font(30));
+		setVisibility(true, startGame, exit, rules);
+
+		rules.setOnAction(rules -> {
+			new RulesAndInformation().show();
+		});
+		pane.getChildren().addAll(startGame, exit, nextLevel, rules);
 
 	}
 
@@ -290,6 +309,7 @@ public class Main extends Application {
 
 			@Override
 			public void run() {
+
 				theGameisOver = false;
 				for (int count = TIMER_SECONDS; count > 0; count--) {
 
@@ -311,8 +331,16 @@ public class Main extends Application {
 				if (!sun.isTheSunYellow() && !theGameisOver) {
 					RainDrop.setRaining(false);
 					soundPlayer.playGameOverSound();
-					JOptionPane.showMessageDialog(null,
-							"GAME OVER \n High score  = " + cup.getHighScore() + "\n at level " + level);
+					gameOver.setText("GAME OVER \nHigh score " + cup.getHighScore());
+					try {
+						// this method returns Thread and i call the join method
+						// to simply wait
+						// till the animation(thread) is over.
+						GameOverAnimation.playAnimation(gameOver).join();
+					} catch (InterruptedException e) {
+
+					}
+
 					System.exit(1);
 				}
 			}
@@ -438,6 +466,7 @@ public class Main extends Application {
 	 * @param keyInput
 	 * @author asen
 	 */
+
 	private void keyBoardInput(javafx.scene.input.KeyEvent keyInput) {
 
 		if (moveballe) {
